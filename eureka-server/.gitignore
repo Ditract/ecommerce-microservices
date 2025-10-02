@@ -1,0 +1,60 @@
+### Compilación ###
+/target/
+/build/
+/out/
+*.class
+*.war
+*.ear
+*.jar
+
+### Logs ###
+*.log
+
+### Archivos temporales ###
+*.tmp
+*.bak
+*.swp
+*.swo
+*.pid
+
+### Maven ###
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/maven-wrapper-downloader.jar
+dependency-reduced-pom.xml
+
+### Gradle ###
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+### IDEs ###
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+.apt_generated/
+.factorypath
+
+# VS Code
+.vscode/
+
+### Sistema operativo ###
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.nfs*
