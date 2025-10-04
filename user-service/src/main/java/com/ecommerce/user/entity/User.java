@@ -66,7 +66,7 @@ public class User {
 
 
     // ============================================
-    // Métodos de ayuda para manejar la relación
+    // Metodos de ayuda para manejar la relacion
     // ============================================
 
     public void addRole(Role role) {
