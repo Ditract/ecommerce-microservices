@@ -1,7 +1,0 @@
-com/ecommerce/user/UserServiceApplication.class
-com/ecommerce/user/entity/Role.class
-com/ecommerce/user/entity/User.class
-com/ecommerce/user/entity/User$UserBuilder.class
-com/ecommerce/user/entity/UserRole.class
-com/ecommerce/user/entity/Role$RoleBuilder.class
-com/ecommerce/user/entity/UserRole$UserRoleBuilder.class
