@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
             ResourceNotFoundException ex,
             WebRequest request) {
 
-        log.error("Resource not found: {}", ex.getMessage());
+        log.error("Recurso no encontrado: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
             DuplicateResourceException ex,
             WebRequest request) {
 
-        log.error("Duplicate resource: {}", ex.getMessage());
+        log.error("Recurso duplicado: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
             InvalidOperationException ex,
             WebRequest request) {
 
-        log.error("Invalid operation: {}", ex.getMessage());
+        log.error("Operación inválida: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex,
             WebRequest request) {
 
-        log.error("Validation error: {}", ex.getMessage());
+        log.error("Error de validación: {}", ex.getMessage());
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
@@ -119,7 +119,7 @@ public class GlobalExceptionHandler {
             Exception ex,
             WebRequest request) {
 
-        log.error("Unhandled exception: ", ex);
+        log.error("Excepción no manejada: ", ex);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
