@@ -6,10 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="856de2a2-b451-4ea8-abe7-b695bf9c4472" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/exception/DuplicateResourceException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/exception/DuplicateResourceException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/exception/InvalidOperationException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/exception/InvalidOperationException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/exception/ResourceNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/exception/ResourceNotFoundException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/service/RoleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/service/RoleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/service/impl/RoleServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/service/impl/RoleServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ecommerce/user/service/impl/UserServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,7 +106,7 @@
       <workItem from="1759562776787" duration="2466000" />
       <workItem from="1759640537075" duration="158000" />
       <workItem from="1759640732325" duration="1229000" />
-      <workItem from="1759686026510" duration="1845000" />
+      <workItem from="1759686026510" duration="2982000" />
     </task>
     <servers />
   </component>
