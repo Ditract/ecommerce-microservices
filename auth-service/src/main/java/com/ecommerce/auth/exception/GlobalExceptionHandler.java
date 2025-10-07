@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
             Exception ex, WebRequest request) {
 
-        log.error("Authentication error: {}", ex.getMessage());
+        log.error("Error de autenticación: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(
             UsernameNotFoundException ex, WebRequest request) {
 
-        log.error("User not found: {}", ex.getMessage());
+        log.error("Usuario no encontrado: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleExpiredJwtException(
             ExpiredJwtException ex, WebRequest request) {
 
-        log.error("Token expired: {}", ex.getMessage());
+        log.error("Token expirado: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidTokenException(
             Exception ex, WebRequest request) {
 
-        log.error("Invalid token: {}", ex.getMessage());
+        log.error("Token inválido: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -110,7 +110,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ValidationErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex, WebRequest request) {
 
-        log.error("Validation error: {}", ex.getMessage());
+        log.error("Error de validación: {}", ex.getMessage());
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
@@ -138,7 +138,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleFeignException(
             FeignException ex, WebRequest request) {
 
-        log.error("Feign error: {}", ex.getMessage());
+        log.error("Error de Feign: {}", ex.getMessage());
 
         HttpStatus status = HttpStatus.valueOf(ex.status());
 
@@ -160,7 +160,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGlobalException(
             Exception ex, WebRequest request) {
 
-        log.error("Unhandled exception: ", ex);
+        log.error("Excepción no controlada: ", ex);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
