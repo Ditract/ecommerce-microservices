@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Modelo interno que representa un rol.
- */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

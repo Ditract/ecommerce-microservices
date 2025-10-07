@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * Modelo interno que representa un usuario.
  * Copia simplificada de la entidad User de User Service.
  */
 @Data
