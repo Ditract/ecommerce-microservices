@@ -1,5 +1,6 @@
 package com.ecommerce.auth.client;
 
+import com.ecommerce.auth.dto.request.UserCreateDTO;
 import com.ecommerce.auth.model.UserDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -43,5 +44,5 @@ public interface UserServiceClient {
      * Llamada: POST http://USER-SERVICE/users
      */
     @PostMapping
-    UserDTO createUser(@RequestBody UserDTO user);
+    UserDTO createUser(@RequestBody UserCreateDTO user);
 }
