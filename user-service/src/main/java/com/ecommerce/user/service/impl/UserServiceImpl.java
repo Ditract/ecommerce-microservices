@@ -52,8 +52,8 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateResourceException("User", "email", requestDTO.getEmail());
         }
 
-        String hashedPassword = passwordEncoder.encode(requestDTO.getPassword());
-        requestDTO.setPassword(hashedPassword);
+        //String hashedPassword = passwordEncoder.encode(requestDTO.getPassword());
+        //requestDTO.setPassword(requestDTO.getPassword());
 
         User user = userMapper.toEntity(requestDTO);
 

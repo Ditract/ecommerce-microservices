@@ -5,6 +5,8 @@ import com.ecommerce.user.dto.request.UserCreateRequestDTO;
 import com.ecommerce.user.dto.request.UserUpdateRequestDTO;
 import com.ecommerce.user.dto.response.UserDetailResponseDTO;
 import com.ecommerce.user.dto.response.UserResponseDTO;
+import com.ecommerce.user.entity.User;
+import com.ecommerce.user.exception.ResourceNotFoundException;
 import com.ecommerce.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -176,6 +178,18 @@ public class UserController {
 
         Map<String, Boolean> response = new HashMap<>();
         response.put("exists", exists);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/internal/email/{email}")
+    public ResponseEntity<Map<String, String>> getUserPasswordForAuth(@PathVariable String email) {
+        log.info("Internal request to get password for auth: {}", email);
+
+        User user = userService.findUserEntityByEmail(email);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("password", user.getPassword());
 
         return ResponseEntity.ok(response);
     }
