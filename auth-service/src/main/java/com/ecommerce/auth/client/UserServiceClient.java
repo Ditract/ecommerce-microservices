@@ -1,6 +1,7 @@
 package com.ecommerce.auth.client;
 
 import com.ecommerce.auth.model.UserDTO;
+import feign.Headers;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -20,7 +21,9 @@ public interface UserServiceClient {
     @PostMapping
     UserDTO createUser(@RequestBody Map<String, String> userRequest);
 
-    // Nuevo método para el endpoint interno
     @GetMapping("/internal/email/{email}")
-    Map<String, String> getUserPasswordForAuth(@PathVariable("email") String email);
+    Map<String, String> getUserPasswordForAuth(
+            @PathVariable("email") String email,
+            @RequestHeader("X-Internal-Auth") String authHeader
+    );
 }

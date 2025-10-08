@@ -26,26 +26,12 @@ spring:
             - StripPrefix=1
 
         # ============================================
-        # RUTA 2b: BLOCK USER INTERNAL - Bloquea /api/users/internal/** PRIMERO (prioridad alta)
+        # RUTA 2: USER SERVICE
         # ============================================
-        - id: block-user-internal  # ID bajo para prioridad alta
-          uri: lb://USER-SERVICE  # lb URI, pero SetStatus evita forwarding
-          predicates:
-            - Path=/api/users/internal/**
-          filters:
-            - StripPrefix=1
-            - name: SetStatus
-              args:
-                status: 403
-            - AddResponseHeader=X-Internal-Blocked, true
-
-        # ============================================
-        # RUTA 2a: USER SERVICE - Públicos (users y roles, después del bloqueo)
-        # ============================================
-        - id: user-service-public
+        - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/api/users/**,/api/roles/**
+            - Path=/api/users/**, /api/roles/**
           filters:
             - StripPrefix=1
 

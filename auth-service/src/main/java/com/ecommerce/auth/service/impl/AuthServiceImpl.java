@@ -62,7 +62,10 @@ public class AuthServiceImpl implements AuthService {
             }
 
             // Obtener el password hasheado
-            Map<String, String> passwordResponse = userServiceClient.getUserPasswordForAuth(loginRequest.getEmail());
+            Map<String, String> passwordResponse = userServiceClient.getUserPasswordForAuth(
+                    loginRequest.getEmail(),
+                    "your-secret-key-123"
+                    );
             String hashedPassword = passwordResponse.get("password");
             if (hashedPassword == null) {
                 log.error("No se pudo obtener el password para {}", loginRequest.getEmail());

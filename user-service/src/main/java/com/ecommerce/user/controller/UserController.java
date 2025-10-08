@@ -183,8 +183,15 @@ public class UserController {
     }
 
     @GetMapping("/internal/email/{email}")
-    public ResponseEntity<Map<String, String>> getUserPasswordForAuth(@PathVariable String email) {
+    public ResponseEntity<Map<String, String>> getUserPasswordForAuth(
+            @PathVariable String email,
+            @RequestHeader(value = "X-Internal-Auth", required = false) String authHeader) {
         log.info("Internal request to get password for auth: {}", email);
+
+        if (!"your-secret-key-123".equals(authHeader)) {  // Header secreto
+            log.warn("Unauthorized internal access attempt: {}", email);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         User user = userService.findUserEntityByEmail(email);
 
