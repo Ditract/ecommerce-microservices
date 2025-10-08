@@ -52,11 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
 
                 email = jwtUtil.extractEmail(jwt);
-                log.debug("JWT extracted for email: {}", email);
+                log.debug("JWT extraído para el correo: {}", email);
             } catch (ExpiredJwtException e) {
-                log.error("JWT Token has expired: {}", e.getMessage());
+                log.error("El token JWT ha expirado: {}", e.getMessage());
             } catch (Exception e) {
-                log.error("Error extracting email from JWT: {}", e.getMessage());
+                log.error("Error al extraer el correo del JWT: {}", e.getMessage());
             }
         }
 
@@ -69,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
                 if (jwtUtil.validateToken(jwt, userDetails)) {
-                    log.debug("JWT is valid for email: {}", email);
+                    log.debug("El JWT es válido para el correo: {}", email);
 
 
                     UsernamePasswordAuthenticationToken authenticationToken =
@@ -86,12 +86,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-                    log.info("User authenticated successfully: {}", email);
+                    log.info("Usuario autenticado correctamente: {}", email);
                 } else {
-                    log.warn("JWT validation failed for email: {}", email);
+                    log.warn("Falló la validación del JWT para el correo: {}", email);
                 }
             } catch (Exception e) {
-                log.error("Cannot set user authentication: {}", e.getMessage());
+                log.error("No se puede establecer la autenticación del usuario: {}", e.getMessage());
             }
         }
 
