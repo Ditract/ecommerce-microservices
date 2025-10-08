@@ -66,7 +66,6 @@ public class SecurityConfig {
 
                 .csrf(AbstractHttpConfigurer::disable)
 
-
                 .authorizeHttpRequests(authorize -> authorize
 
                         .requestMatchers(
@@ -85,7 +84,6 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
 
                 .authenticationProvider(authenticationProvider())
 

@@ -1,20 +1,19 @@
 server:
-  port: 8080  # Puerto del Gateway (punto de entrada �nico)
+  port: 8080
 
 spring:
   application:
     name: api-gateway
 
-  # Configuraci�n de Spring Cloud Gateway
+  # Configuracion de Spring Cloud Gateway
   cloud:
     gateway:
-      # Habilitar descubrimiento de rutas v�a Eureka
+      # Habilitar descubrimiento de rutas via Eureka
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
 
-      # Configuracion de rutas manuales
       routes:
         # ============================================
         # RUTA 1: AUTH SERVICE
@@ -26,14 +25,27 @@ spring:
           filters:
             - StripPrefix=1
 
+        # ============================================
+        # RUTA 2b: BLOCK USER INTERNAL - Bloquea /api/users/internal/** PRIMERO (prioridad alta)
+        # ============================================
+        - id: block-user-internal  # ID bajo para prioridad alta
+          uri: lb://USER-SERVICE  # lb URI, pero SetStatus evita forwarding
+          predicates:
+            - Path=/api/users/internal/**
+          filters:
+            - StripPrefix=1
+            - name: SetStatus
+              args:
+                status: 403
+            - AddResponseHeader=X-Internal-Blocked, true
 
         # ============================================
-        # RUTA 2: USER SERVICE
+        # RUTA 2a: USER SERVICE - Públicos (users y roles, después del bloqueo)
         # ============================================
-        - id: user-service
+        - id: user-service-public
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/api/users/**
+            - Path=/api/users/**,/api/roles/**
           filters:
             - StripPrefix=1
 
@@ -57,7 +69,7 @@ spring:
           filters:
             - StripPrefix=1
 
-      # Configuraci�n global de CORS
+      # Configuracion global de CORS
       globalcors:
         cors-configurations:
           '[/**]':
@@ -77,7 +89,7 @@ spring:
             allow-credentials: true
             max-age: 3600
 
-# Configuraci�n de Eureka Client
+# Configuracion de Eureka Client
 eureka:
   client:
     service-url:
@@ -88,7 +100,7 @@ eureka:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
 
-# Configuraci�n de Actuator (para health checks)
+# Configuracion de Actuator (para health checks)
 management:
   endpoints:
     web:

@@ -38,7 +38,7 @@ jwt:
 
 
   expiration: 3600000  # 1 hora en milisegundos (1000 * 60 * 60)
-  refresh-expiration: 604800000  # 7 días en milisegundos (1000 * 60 * 60 * 24 * 7)
+  refresh-expiration: 604800000  # 7 dï¿½as en milisegundos (1000 * 60 * 60 * 24 * 7)
 
 # Configuracion de Feign (para comunicarse con User Service)
 feign:
@@ -54,5 +54,6 @@ logging:
   level:
     com.ecommerce.auth: DEBUG
     org.springframework.security: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
