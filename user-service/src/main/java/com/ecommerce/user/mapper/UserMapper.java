@@ -22,12 +22,10 @@ public class UserMapper {
 
     /**
      * Convierte UserCreateRequestDTO a User entity.
-     * El password debe ser hasheado ANTES de llamar este metodo (en el service).
      */
     public User toEntity(UserCreateRequestDTO dto) {
         return User.builder()
                 .email(dto.getEmail())
-                .password(dto.getPassword())
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
                 .phone(dto.getPhone())
