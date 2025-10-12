@@ -1,8 +1,8 @@
 package com.ecommerce.auth.security.config;
 
 
-import com.ecommerce.auth.filter.JwtAuthenticationFilter;
-import com.ecommerce.auth.security.CustomUserDetailsService;
+import com.ecommerce.auth.security.jwt.JwtAuthenticationFilter;
+import com.ecommerce.auth.security.service.CustomUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

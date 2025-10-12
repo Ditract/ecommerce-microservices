@@ -1,7 +1,6 @@
-package com.ecommerce.auth.filter;
+package com.ecommerce.auth.security.jwt;
 
-import com.ecommerce.auth.security.CustomUserDetailsService;
-import com.ecommerce.auth.security.JwtUtil;
+import com.ecommerce.auth.security.service.CustomUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

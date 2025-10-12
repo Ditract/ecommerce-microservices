@@ -1,4 +1,4 @@
-package com.ecommerce.auth.security;
+package com.ecommerce.auth.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
