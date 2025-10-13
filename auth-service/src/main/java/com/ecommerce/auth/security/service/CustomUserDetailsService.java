@@ -1,8 +1,7 @@
-package com.ecommerce.auth.security;
+package com.ecommerce.auth.security.service;
 
 import com.ecommerce.auth.client.UserServiceClient;
 import com.ecommerce.auth.model.UserDTO;
-import com.ecommerce.auth.model.RoleDTO;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;

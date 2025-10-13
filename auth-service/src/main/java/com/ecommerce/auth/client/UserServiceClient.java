@@ -20,7 +20,5 @@ public interface UserServiceClient {
     @PostMapping
     UserDTO createUser(@RequestBody Map<String, String> userRequest);
 
-    // Nuevo método para el endpoint interno
-    @GetMapping("/internal/email/{email}")
-    Map<String, String> getUserPasswordForAuth(@PathVariable("email") String email);
+
 }

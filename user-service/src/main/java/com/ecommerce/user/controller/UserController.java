@@ -182,15 +182,5 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/internal/email/{email}")
-    public ResponseEntity<Map<String, String>> getUserPasswordForAuth(@PathVariable String email) {
-        log.info("Internal request to get password for auth: {}", email);
 
-        User user = userService.findUserEntityByEmail(email);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("password", user.getPassword());
-
-        return ResponseEntity.ok(response);
-    }
 }

@@ -14,7 +14,6 @@ import com.ecommerce.user.repository.RoleRepository;
 import com.ecommerce.user.repository.UserRepository;
 import com.ecommerce.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     public UserServiceImpl(
             UserRepository userRepository,
@@ -39,7 +37,6 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
-        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     @Override
@@ -51,9 +48,6 @@ public class UserServiceImpl implements UserService {
             log.error("El email ya existe: {}", requestDTO.getEmail());
             throw new DuplicateResourceException("User", "email", requestDTO.getEmail());
         }
-
-        //String hashedPassword = passwordEncoder.encode(requestDTO.getPassword());
-        //requestDTO.setPassword(requestDTO.getPassword());
 
         User user = userMapper.toEntity(requestDTO);
 

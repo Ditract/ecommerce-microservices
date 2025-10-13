@@ -59,7 +59,6 @@ public class AuthController {
      *   "password": "Password123",
      *   "firstName": "Nuevo",
      *   "lastName": "Usuario",
-     *   "phone": "+573001234567"
      * }
      *
      * Response: 201 Created

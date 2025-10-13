@@ -22,12 +22,10 @@ public class UserMapper {
 
     /**
      * Convierte UserCreateRequestDTO a User entity.
-     * El password debe ser hasheado ANTES de llamar este metodo (en el service).
      */
     public User toEntity(UserCreateRequestDTO dto) {
         return User.builder()
                 .email(dto.getEmail())
-                .password(dto.getPassword())
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
                 .phone(dto.getPhone())
@@ -37,7 +35,6 @@ public class UserMapper {
 
     /**
      * Actualiza una entidad User existente con datos del DTO.
-     * Solo actualiza campos no nulos.
      */
     public void updateEntityFromDTO(User user, UserUpdateRequestDTO dto) {
         if (dto.getEmail() != null) {

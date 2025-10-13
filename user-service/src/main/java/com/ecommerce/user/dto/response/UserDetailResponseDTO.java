@@ -18,7 +18,7 @@ public class UserDetailResponseDTO {
     private String lastName;
     private String phone;
     private Boolean isActive;
-    private Set<RoleResponseDTO> roles;  // Roles del usuario
+    private Set<RoleResponseDTO> roles;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

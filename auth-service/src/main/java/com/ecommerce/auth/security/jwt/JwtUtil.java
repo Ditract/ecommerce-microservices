@@ -1,4 +1,4 @@
-package com.ecommerce.auth.security;
+package com.ecommerce.auth.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -16,10 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Utilidad para generar y validar JWT.
- * Usa JJWT library con algoritmo HMAC-SHA256.
- */
+
 @Slf4j
 @Component
 public class JwtUtil {
@@ -67,9 +64,9 @@ public class JwtUtil {
     /**
      * Crea el token JWT.
      *
-     * @param claims Informacion adicional (roles, permisos, etc.)
-     * @param subject Identificador del usuario (email)
-     * @param expirationTime Tiempo de vida en milisegundos
+     * @param claims
+     * @param subject
+     * @param expirationTime
      */
     private String createToken(Map<String, Object> claims, String subject, Long expirationTime) {
         Date now = new Date();
@@ -134,19 +131,12 @@ public class JwtUtil {
         }
     }
 
-    /**
-     * Verifica si el token está expirado.
-     */
+
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    /**
-     * Valida el token contra un usuario.
-     * Verifica que:
-     * 1. El email del token coincide con el usuario
-     * 2. El token no está expirado
-     */
+
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String email = extractEmail(token);
         return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));

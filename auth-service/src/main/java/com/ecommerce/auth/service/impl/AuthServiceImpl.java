@@ -6,16 +6,16 @@ import com.ecommerce.auth.dto.request.LoginRequestDTO;
 import com.ecommerce.auth.dto.request.RefreshTokenRequestDTO;
 import com.ecommerce.auth.dto.request.RegisterRequestDTO;
 import com.ecommerce.auth.dto.response.AuthResponseDTO;
+import com.ecommerce.auth.entity.Credential;
 import com.ecommerce.auth.exception.AuthenticationException;
 import com.ecommerce.auth.exception.InvalidTokenException;
 import com.ecommerce.auth.model.UserDTO;
-import com.ecommerce.auth.security.CustomUserDetails;
-import com.ecommerce.auth.security.CustomUserDetailsService;
-import com.ecommerce.auth.security.JwtUtil;
+import com.ecommerce.auth.security.service.CustomUserDetails;
+import com.ecommerce.auth.security.service.CustomUserDetailsService;
+import com.ecommerce.auth.security.jwt.JwtUtil;
 import com.ecommerce.auth.service.AuthService;
-import feign.FeignException;
+import com.ecommerce.auth.service.CredentialService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,61 +30,63 @@ import java.util.stream.Collectors;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
     private final UserServiceClient userServiceClient;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final CredentialService credentialService;
 
     public AuthServiceImpl(
-            AuthenticationManager authenticationManager,
             CustomUserDetailsService userDetailsService,
             UserServiceClient userServiceClient,
             JwtUtil jwtUtil,
-            PasswordEncoder passwordEncoder) {
-        this.authenticationManager = authenticationManager;
+            PasswordEncoder passwordEncoder,
+            CredentialService credentialService) {
         this.userDetailsService = userDetailsService;
         this.userServiceClient = userServiceClient;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
+        this.credentialService = credentialService;
     }
 
     @Override
-    public AuthResponseDTO login(LoginRequestDTO loginRequest) {
-        log.info("Intento de inicio de sesión para el correo: {}", loginRequest.getEmail());
+    public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
+        log.info("Intento de registro para el correo: {}", registerRequest.getEmail());
 
         try {
-            // Verificar si el usuario existe
-            Map<String, Boolean> existsResponse = userServiceClient.checkEmailExists(loginRequest.getEmail());
-            if (!Boolean.TRUE.equals(existsResponse.get("exists"))) {
-                log.warn("El email {} no está registrado", loginRequest.getEmail());
-                throw new AuthenticationException("Email o password incorrectos");
+            // Verificar email
+            Map<String, Boolean> existsResponse = userServiceClient.checkEmailExists(registerRequest.getEmail());
+            if (Boolean.TRUE.equals(existsResponse.get("exists"))) {
+                throw new AuthenticationException("El email ya está registrado");
             }
 
-            // Obtener el password hasheado
-            Map<String, String> passwordResponse = userServiceClient.getUserPasswordForAuth(loginRequest.getEmail());
-            String hashedPassword = passwordResponse.get("password");
-            if (hashedPassword == null) {
-                log.error("No se pudo obtener el password para {}", loginRequest.getEmail());
-                throw new AuthenticationException("Error al validar las credenciales");
+            // Crear usuario SIN password en User Service
+            Map<String, String> userRequest = new HashMap<>();
+            userRequest.put("email", registerRequest.getEmail());
+            userRequest.put("firstName", registerRequest.getFirstName());
+            userRequest.put("lastName", registerRequest.getLastName());
+            if (registerRequest.getPhone() != null) {
+                userRequest.put("phone", registerRequest.getPhone());
             }
 
-            // Validar el password
-            if (!passwordEncoder.matches(loginRequest.getPassword(), hashedPassword)) {
-                log.warn("Password incorrecto para {}", loginRequest.getEmail());
-                throw new AuthenticationException("Email o password incorrectos");
-            }
+            UserDTO createdUser = userServiceClient.createUser(userRequest);
+            log.info("Usuario creado con ID: {}", createdUser.getId());
 
-            // Cargar UserDetails
-            UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
-            CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
-
+            // Crear credenciales en Auth Service
+            String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
+            credentialService.createCredential(
+                    createdUser.getId(),
+                    createdUser.getEmail(),
+                    hashedPassword
+            );
+            log.info("Credenciales creadas para userId: {}", createdUser.getId());
 
             // Generar tokens
+            UserDetails userDetails = userDetailsService.loadUserByUsername(createdUser.getEmail());
+            CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+
             String accessToken = jwtUtil.generateAccessToken(userDetails);
             String refreshToken = jwtUtil.generateRefreshToken(userDetails);
-
-            log.info("Inicio de sesión exitoso para el correo: {}", loginRequest.getEmail());
 
             return AuthResponseDTO.builder()
                     .accessToken(accessToken)
@@ -102,63 +104,44 @@ public class AuthServiceImpl implements AuthService {
 
         } catch (AuthenticationException e) {
             throw e;
-        } catch (FeignException e) {
-            log.error("Error al comunicarse con el servicio de usuarios: {}", e.getMessage());
-            throw new AuthenticationException("Error en el servicio de autenticación: " + e.getMessage(), e);
         } catch (Exception e) {
-            log.error("Error inesperado durante el inicio de sesión: {}", e.getMessage(), e);
-            throw new AuthenticationException("Error inesperado durante el login: " + e.getMessage(), e);
+            log.error("Error durante el registro: {}", e.getMessage(), e);
+            throw new AuthenticationException("Error en el servicio de registro", e);
         }
     }
 
     @Override
-    public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
-        log.info("Intento de registro para el correo: {}", registerRequest.getEmail());
+    public AuthResponseDTO login(LoginRequestDTO loginRequest) {
+        log.info("Intento de inicio de sesión para: {}", loginRequest.getEmail());
 
         try {
-            // Verificar email
-            Map<String, Boolean> existsResponse = userServiceClient.checkEmailExists(registerRequest.getEmail());
-            log.info("Respuesta de checkEmailExists para {}: {}", registerRequest.getEmail(), existsResponse);
-            if (Boolean.TRUE.equals(existsResponse.get("exists"))) {
-                log.warn("El email {} ya está registrado", registerRequest.getEmail());
-                throw new AuthenticationException("El email ya está registrado");
+            // Validar credenciales desde Auth DB
+            if (!credentialService.validatePassword(loginRequest.getPassword(), loginRequest.getEmail())) {
+                throw new AuthenticationException("Email o password incorrectos");
             }
 
-            // Hashear password
-            String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
-            log.info("Password hasheado para {}: {}", registerRequest.getEmail(), hashedPassword);
+            // Obtener credencial
+            Credential credential = credentialService.findByEmail(loginRequest.getEmail());
 
-            // Crear Map con datos del usuario
-            Map<String, String> userRequest = new HashMap<>();
-            userRequest.put("email", registerRequest.getEmail());
-            userRequest.put("password", hashedPassword);
-            userRequest.put("firstName", registerRequest.getFirstName());
-            userRequest.put("lastName", registerRequest.getLastName());
-            if (registerRequest.getPhone() != null) {
-                userRequest.put("phone", registerRequest.getPhone());
-            }
-
-            // Crear usuario
-            log.info("Creando usuario para {}", registerRequest.getEmail());
-            UserDTO createdUser = userServiceClient.createUser(userRequest);
-            log.info("Usuario creado: {}", createdUser.getEmail());
+            // Cargar UserDetails desde User Service
+            UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
+            CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
 
             // Generar tokens
-            log.info("Cargando user details para {}", createdUser.getEmail());
-            UserDetails userDetails = userDetailsService.loadUserByUsername(createdUser.getEmail());
-            log.info("Generando tokens para {}", createdUser.getEmail());
             String accessToken = jwtUtil.generateAccessToken(userDetails);
             String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+            log.info("Inicio de sesión exitoso para: {}", loginRequest.getEmail());
 
             return AuthResponseDTO.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .tokenType("Bearer")
                     .expiresIn(jwtUtil.getExpirationInSeconds())
-                    .userId(createdUser.getId())
-                    .email(createdUser.getEmail())
-                    .firstName(createdUser.getFirstName())
-                    .lastName(createdUser.getLastName())
+                    .userId(customUserDetails.getId())
+                    .email(customUserDetails.getUsername())
+                    .firstName(customUserDetails.getFirstName())
+                    .lastName(customUserDetails.getLastName())
                     .roles(userDetails.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)
                             .collect(Collectors.toSet()))
@@ -167,8 +150,8 @@ public class AuthServiceImpl implements AuthService {
         } catch (AuthenticationException e) {
             throw e;
         } catch (Exception e) {
-            log.error("Error durante el registro para {}: {}", registerRequest.getEmail(), e.getMessage(), e);
-            throw new AuthenticationException("Error en el servicio de registro: " + e.getMessage(), e);
+            log.error("Error durante login: {}", e.getMessage());
+            throw new AuthenticationException("Error en el servicio de autenticación", e);
         }
     }
 
