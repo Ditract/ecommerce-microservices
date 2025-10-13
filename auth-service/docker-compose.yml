@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  postgres-auth:
+    image: postgres:15-alpine
+    container_name: postgres-auth-db
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: ecommerce_auth
+      POSTGRES_PASSWORD: auth123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-network
+
+volumes:
+  postgres-auth-data:
+
+networks:
+  ecommerce-network:
+    driver: bridge
