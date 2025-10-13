@@ -30,7 +30,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null; // No se necesita password para JWT
+        return null;
     }
 
     @Override

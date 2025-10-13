@@ -83,7 +83,6 @@ public class GlobalExceptionHandler {
 
     /**
      * Maneja errores de validacion (@Valid).
-     * Devuelve un mapa con los campos y sus errores.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleValidationException(

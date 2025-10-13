@@ -35,7 +35,6 @@ public class UserMapper {
 
     /**
      * Actualiza una entidad User existente con datos del DTO.
-     * Solo actualiza campos no nulos.
      */
     public void updateEntityFromDTO(User user, UserUpdateRequestDTO dto) {
         if (dto.getEmail() != null) {

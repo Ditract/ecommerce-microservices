@@ -54,13 +54,13 @@ public class AuthServiceImpl implements AuthService {
         log.info("Intento de registro para el correo: {}", registerRequest.getEmail());
 
         try {
-            // 1. Verificar email
+            // Verificar email
             Map<String, Boolean> existsResponse = userServiceClient.checkEmailExists(registerRequest.getEmail());
             if (Boolean.TRUE.equals(existsResponse.get("exists"))) {
                 throw new AuthenticationException("El email ya está registrado");
             }
 
-            // 2. Crear usuario SIN password en User Service
+            // Crear usuario SIN password en User Service
             Map<String, String> userRequest = new HashMap<>();
             userRequest.put("email", registerRequest.getEmail());
             userRequest.put("firstName", registerRequest.getFirstName());
@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
             UserDTO createdUser = userServiceClient.createUser(userRequest);
             log.info("Usuario creado con ID: {}", createdUser.getId());
 
-            // 3. Crear credenciales en Auth Service
+            // Crear credenciales en Auth Service
             String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
             credentialService.createCredential(
                     createdUser.getId(),
@@ -81,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
             );
             log.info("Credenciales creadas para userId: {}", createdUser.getId());
 
-            // 4. Generar tokens
+            // Generar tokens
             UserDetails userDetails = userDetailsService.loadUserByUsername(createdUser.getEmail());
             CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
 
@@ -115,19 +115,19 @@ public class AuthServiceImpl implements AuthService {
         log.info("Intento de inicio de sesión para: {}", loginRequest.getEmail());
 
         try {
-            // 1. Validar credenciales desde Auth DB
+            // Validar credenciales desde Auth DB
             if (!credentialService.validatePassword(loginRequest.getPassword(), loginRequest.getEmail())) {
                 throw new AuthenticationException("Email o password incorrectos");
             }
 
-            // 2. Obtener credencial
+            // Obtener credencial
             Credential credential = credentialService.findByEmail(loginRequest.getEmail());
 
-            // 3. Cargar UserDetails desde User Service
+            // Cargar UserDetails desde User Service
             UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
             CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
 
-            // 4. Generar tokens
+            // Generar tokens
             String accessToken = jwtUtil.generateAccessToken(userDetails);
             String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 

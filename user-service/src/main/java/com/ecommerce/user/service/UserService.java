@@ -51,12 +51,12 @@ public interface UserService {
     boolean existsByEmail(String email);
 
     /**
-     * Metodo interno para obtener la entidad User (usado por otros microservicios).
+     * Metodo interno para obtener la entidad User (usado por otros microservicios) (solo pruebas).
      */
     User findUserEntityById(Long id);
 
     /**
-     * Metodo interno para obtener la entidad User por email (usado por Auth Service).
+     * Metodo interno para obtener la entidad User por email (usado por Auth Service) (solo pruebas).
      */
     User findUserEntityByEmail(String email);
 }
