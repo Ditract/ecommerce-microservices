@@ -1,9 +1,10 @@
 version: '3.8'
 
 services:
-  postgres-auth:
+  # Base de datos PostgreSQL
+  auth-db:
     image: postgres:15-alpine
-    container_name: postgres-auth-db
+    container_name: auth-db
     environment:
       POSTGRES_DB: auth_db
       POSTGRES_USER: ecommerce_auth
@@ -11,12 +12,56 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres-auth-data:/var/lib/postgresql/data
+      - auth_db_data:/var/lib/postgresql/data
     networks:
       - ecommerce-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecommerce_auth -d auth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Servicio de autenticación
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth-service
+    environment:
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_db
+      SPRING_DATASOURCE_USERNAME: ecommerce_auth
+      SPRING_DATASOURCE_PASSWORD: auth123
+
+      # Servicios externos
+      USER_SERVICE_URL: http://user-service:8082
+
+      # JWT
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+
+      # JVM Options para contenedor
+      JAVA_OPTS: >
+        -XX:MaxRAMPercentage=75.0
+        -XX:InitialRAMPercentage=50.0
+        -Djava.security.egd=file:/dev/./urandom
+    ports:
+      - "8081:8081"
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
 
 volumes:
-  postgres-auth-data:
+  auth_db_data:
+    driver: local
 
 networks:
   ecommerce-network:
