@@ -7,9 +7,9 @@ spring:
 
   # Configuracion de base de datos
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/auth_db}
-    username: ${SPRING_DATASOURCE_USERNAME:ecommerce_auth}
-    password: ${SPRING_DATASOURCE_PASSWORD:auth123}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -31,7 +31,7 @@ spring:
 # Configuracion de URLs de servicios externos
 services:
   user-service:
-    url: ${USER_SERVICE_URL:http://localhost:8082}
+    url: ${USER_SERVICE_URL}
 
 # Configuracion de Actuator
 management:
