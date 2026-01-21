@@ -17,6 +17,9 @@
 *.swo
 *.pid
 
+### Variables de entorno ###
+.env
+
 ### Maven ###
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
