@@ -5,11 +5,11 @@ spring:
   application:
     name: auth-service
 
-  # Configuracion db
+  # Configuracion de base de datos
   datasource:
-    url: jdbc:postgresql://localhost:5433/auth_db
-    username: ecommerce_auth
-    password: auth123
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -28,16 +28,10 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
-# Configuracion de Eureka Client
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${server.port}
+# Configuracion de URLs de servicios externos
+services:
+  user-service:
+    url: ${USER_SERVICE_URL}
 
 # Configuracion de Actuator
 management:
@@ -52,10 +46,10 @@ management:
 # Configuracion de JWT
 jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-  expiration: 3600000  # 1 hora en milisegundos (1000 * 60 * 60)
-  refresh-expiration: 604800000  # 7 días en milisegundos (1000 * 60 * 60 * 24 * 7)
+  expiration: 3600000  # 1 hora en milisegundos
+  refresh-expiration: 604800000  # 7 días en milisegundos
 
-# Configuracion de Feign (para comunicarse con User Service)
+# Configuracion de Feign
 feign:
   client:
     config:
@@ -63,12 +57,16 @@ feign:
         connectTimeout: 5000
         readTimeout: 5000
         loggerLevel: basic
+      user-service:
+        connectTimeout: 3000
+        readTimeout: 3000
+        loggerLevel: full
 
 # Logging
 logging:
   level:
     com.ecommerce.auth: DEBUG
+    com.ecommerce.auth.client: DEBUG
     org.springframework.security: DEBUG
-    org.springframework.security.web.FilterChainProxy: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

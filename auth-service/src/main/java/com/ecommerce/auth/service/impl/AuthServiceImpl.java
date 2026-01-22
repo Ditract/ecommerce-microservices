@@ -1,6 +1,5 @@
 package com.ecommerce.auth.service.impl;
 
-
 import com.ecommerce.auth.client.UserServiceClient;
 import com.ecommerce.auth.dto.request.LoginRequestDTO;
 import com.ecommerce.auth.dto.request.RefreshTokenRequestDTO;
@@ -9,6 +8,8 @@ import com.ecommerce.auth.dto.response.AuthResponseDTO;
 import com.ecommerce.auth.entity.Credential;
 import com.ecommerce.auth.exception.AuthenticationException;
 import com.ecommerce.auth.exception.InvalidTokenException;
+import com.ecommerce.auth.exception.ServiceUnavailableException;
+import com.ecommerce.auth.exception.UserServiceException;
 import com.ecommerce.auth.model.UserDTO;
 import com.ecommerce.auth.security.service.CustomUserDetails;
 import com.ecommerce.auth.security.service.CustomUserDetailsService;
@@ -51,16 +52,19 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
-        log.info("Intento de registro para el correo: {}", registerRequest.getEmail());
+        log.info("Iniciando proceso de registro para el correo: {}", registerRequest.getEmail());
+
+        Long userId = null;
 
         try {
-            // Verificar email
+            log.debug("Verificando disponibilidad del email...");
             Map<String, Boolean> existsResponse = userServiceClient.checkEmailExists(registerRequest.getEmail());
             if (Boolean.TRUE.equals(existsResponse.get("exists"))) {
                 throw new AuthenticationException("El email ya está registrado");
             }
 
-            // Crear usuario SIN password en User Service
+            //Crear usuario en user-service
+            log.debug("Creando usuario en user-service...");
             Map<String, String> userRequest = new HashMap<>();
             userRequest.put("email", registerRequest.getEmail());
             userRequest.put("firstName", registerRequest.getFirstName());
@@ -70,23 +74,29 @@ public class AuthServiceImpl implements AuthService {
             }
 
             UserDTO createdUser = userServiceClient.createUser(userRequest);
-            log.info("Usuario creado con ID: {}", createdUser.getId());
+            userId = createdUser.getId();
+            log.info("Usuario creado en user-service con ID: {}", userId);
 
-            // Crear credenciales en Auth Service
+            //Crear credenciales INACTIVAS en auth-service
+            log.debug("Creando credenciales para userId: {}", userId);
             String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
-            credentialService.createCredential(
-                    createdUser.getId(),
-                    createdUser.getEmail(),
-                    hashedPassword
-            );
-            log.info("Credenciales creadas para userId: {}", createdUser.getId());
+            credentialService.createCredential(userId, createdUser.getEmail(), hashedPassword);
+            log.info("Credenciales creadas (inactivas) para userId: {}", userId);
 
-            // Generar tokens
+            //Activar credenciales (solo si todo fue exitoso)
+            log.debug("Activando credenciales para userId: {}", userId);
+            credentialService.activateCredential(userId);
+            log.info("Credenciales activadas para userId: {}", userId);
+
+            //Cargar usuario completo con roles y generar tokens
+            log.debug("Cargando UserDetails y generando tokens...");
             UserDetails userDetails = userDetailsService.loadUserByUsername(createdUser.getEmail());
             CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
 
             String accessToken = jwtUtil.generateAccessToken(userDetails);
             String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+            log.info("Registro completado exitosamente para: {}", registerRequest.getEmail());
 
             return AuthResponseDTO.builder()
                     .accessToken(accessToken)
@@ -103,10 +113,57 @@ public class AuthServiceImpl implements AuthService {
                     .build();
 
         } catch (AuthenticationException e) {
+            // Error de validación, no requiere compensación
+            log.error("Error de validación en registro: {}", e.getMessage());
             throw e;
+
+        } catch (ServiceUnavailableException e) {
+            // user-service no disponible, compensar si se crearon credenciales
+            log.error("User-service no disponible durante registro: {}", e.getMessage());
+            if (userId != null) {
+                compensateRegistration(userId, "User-service no disponible");
+            }
+            throw new AuthenticationException("Servicio temporalmente no disponible. Intenta más tarde.", e);
+
+        } catch (UserServiceException e) {
+            // Error en user-service, compensar si se crearon credenciales
+            log.error("Error en user-service durante registro: {}", e.getMessage());
+            if (userId != null) {
+                compensateRegistration(userId, "Error en user-service");
+            }
+            throw new AuthenticationException("Error al crear usuario: " + e.getMessage(), e);
+
         } catch (Exception e) {
-            log.error("Error durante el registro: {}", e.getMessage(), e);
+            // Error inesperado, compensar si se crearon credenciales
+            log.error("Error inesperado durante registro: {}", e.getMessage(), e);
+            if (userId != null) {
+                compensateRegistration(userId, "Error inesperado");
+            }
             throw new AuthenticationException("Error en el servicio de registro", e);
+        }
+    }
+
+    /**
+     * Compensa el proceso de registro desactivando credenciales.
+     */
+    private void compensateRegistration(Long userId, String reason) {
+        log.warn("COMPENSACIÓN INICIADA - userId: {}, razón: {}", userId, reason);
+
+        try {
+            // Desactivar credenciales
+            credentialService.deactivateCredential(userId);
+            log.info("Compensación exitosa: credenciales desactivadas para userId: {}", userId);
+
+            // TODO (para después): Llamar a user-service para marcar usuario como inactivo
+            // userServiceClient.deactivateUser(userId);
+
+        } catch (Exception compensationError) {
+            // Si la compensación falla, registrar para revisión manual
+            log.error("FALLÓ LA COMPENSACIÓN para userId: {} - REQUIERE REVISIÓN MANUAL",
+                    userId, compensationError);
+
+            // TODO (para después): Enviar evento a Dead Letter Queue para revisión manual
+            // eventPublisher.publish(new RegistrationCompensationFailedEvent(userId, reason));
         }
     }
 
@@ -162,27 +219,21 @@ public class AuthServiceImpl implements AuthService {
         try {
             String refreshToken = refreshRequest.getRefreshToken();
 
-
             if (!jwtUtil.validateToken(refreshToken)) {
                 log.warn("Token de actualización inválido");
                 throw new InvalidTokenException("Refresh token inválido o expirado");
             }
 
-
             String email = jwtUtil.extractEmail(refreshToken);
 
-            //  Cargar usuario
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-
             UserDTO user = userServiceClient.getUserByEmail(email);
-
 
             String newAccessToken = jwtUtil.generateAccessToken(userDetails);
 
             log.info("Token de acceso renovado exitosamente para el correo: {}", email);
 
-            // Construir la respuesta
             return AuthResponseDTO.builder()
                     .accessToken(newAccessToken)
                     .refreshToken(refreshToken)

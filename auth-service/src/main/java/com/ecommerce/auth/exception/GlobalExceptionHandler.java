@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja usuario no encontrado.
+     * Maneja usuario no encontrado (desde user-service).
      */
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(
@@ -61,6 +61,48 @@ public class GlobalExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Maneja cuando user-service no está disponible.
+     */
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleServiceUnavailableException(
+            ServiceUnavailableException ex, WebRequest request) {
+
+        log.error("Servicio no disponible: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.SERVICE_UNAVAILABLE.value())
+                .error("Service Unavailable")
+                .message("El servicio de usuarios no está disponible temporalmente. Por favor, intenta más tarde.")
+                .path(request.getDescription(false).replace("uri=", ""))
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    /**
+     * Maneja errores generales de user-service.
+     */
+    @ExceptionHandler(UserServiceException.class)
+    public ResponseEntity<ErrorResponse> handleUserServiceException(
+            UserServiceException ex, WebRequest request) {
+
+        log.error("Error en user-service: {}", ex.getMessage());
+
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getDescription(false).replace("uri=", ""))
+                .build();
+
+        return new ResponseEntity<>(errorResponse, status);
     }
 
     /**
@@ -138,7 +180,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleFeignException(
             FeignException ex, WebRequest request) {
 
-        log.error("Error de Feign: {}", ex.getMessage());
+        log.error("Error de Feign no manejado: {}", ex.getMessage());
 
         HttpStatus status = HttpStatus.valueOf(ex.status());
 
@@ -146,7 +188,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(status.value())
                 .error(status.getReasonPhrase())
-                .message("Error comunicándose con User Service: " + ex.contentUTF8())
+                .message("Error comunicándose con el servicio de usuarios")
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
 

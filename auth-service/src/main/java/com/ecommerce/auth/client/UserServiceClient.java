@@ -1,11 +1,17 @@
 package com.ecommerce.auth.client;
 
+import com.ecommerce.auth.config.FeignClientConfig;
 import com.ecommerce.auth.model.UserDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
-@FeignClient(name = "USER-SERVICE", path = "/users")
+@FeignClient(
+        name = "user-service",
+        url = "${services.user-service.url}",
+        path = "/users",
+        configuration = FeignClientConfig.class
+)
 public interface UserServiceClient {
 
     @GetMapping("/email/{email}")
@@ -19,6 +25,5 @@ public interface UserServiceClient {
 
     @PostMapping
     UserDTO createUser(@RequestBody Map<String, String> userRequest);
-
 
 }
