@@ -1,5 +1,6 @@
 package com.ecommerce.auth.client;
 
+import com.ecommerce.auth.config.FeignClientConfig;
 import com.ecommerce.auth.model.UserDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -8,7 +9,8 @@ import java.util.Map;
 @FeignClient(
         name = "user-service",
         url = "${services.user-service.url}",
-        path = "/users"
+        path = "/users",
+        configuration = FeignClientConfig.class
 )
 public interface UserServiceClient {
 
