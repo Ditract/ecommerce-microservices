@@ -17,6 +17,14 @@
 *.swo
 *.pid
 
+### Variables de entorno ###
+.env
+.env.local
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
 ### Maven ###
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
