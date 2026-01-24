@@ -1,0 +1,30 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    environment:
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL:-http://host.docker.internal:8081}
+      USER_SERVICE_URL: ${USER_SERVICE_URL:-http://host.docker.internal:8082}
+      PRODUCT_SERVICE_URL: ${PRODUCT_SERVICE_URL:-http://host.docker.internal:8083}
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL:-http://host.docker.internal:8084}
+      JAVA_OPTS: >
+        -XX:MaxRAMPercentage=75.0
+        -XX:InitialRAMPercentage=50.0
+        -Djava.security.egd=file:/dev/./urandom
+    ports:
+      - "8080:8080"
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+networks:
+  ecommerce-network:
+    driver: bridge
