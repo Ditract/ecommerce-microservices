@@ -6,7 +6,7 @@ RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline -B
 COPY src ./src
 RUN ./mvnw clean package -DskipTests
-RUN java -q -jar target/*.jar extract
+RUN java -Djarmode=layertools -jar target/*.jar extract
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
