@@ -35,7 +35,7 @@ public class CredentialServiceImpl implements CredentialService {
                 .userId(userId)
                 .email(email)
                 .passwordHash(passwordHash)
-                .isActive(true)
+                .isActive(false)
                 .build();
 
         return credentialRepository.save(credential);
@@ -52,6 +52,13 @@ public class CredentialServiceImpl implements CredentialService {
     @Transactional(readOnly = true)
     public boolean validatePassword(String rawPassword, String email) {
         Credential credential = findByEmail(email);
+
+        //Validar que la credencial esté activa
+        if (!credential.getIsActive()) {
+            log.warn("Intento de login con credencial inactiva: {}", email);
+            throw new AuthenticationException("Cuenta no activada");
+        }
+
         return passwordEncoder.matches(rawPassword, credential.getPasswordHash());
     }
 
@@ -60,5 +67,25 @@ public class CredentialServiceImpl implements CredentialService {
         Credential credential = findByEmail(email);
         credential.setPasswordHash(newPasswordHash);
         credentialRepository.save(credential);
+    }
+
+    @Override
+    public void activateCredential(Long userId) {
+        log.info("Activando credencial para userId: {}", userId);
+        Credential credential = credentialRepository.findByUserId(userId)
+                .orElseThrow(() -> new AuthenticationException("Credencial no encontrada para userId: " + userId));
+
+        credential.setIsActive(true);
+        credentialRepository.save(credential);
+        log.info("Credencial activada exitosamente para userId: {}", userId);
+    }
+
+    @Override
+    public void deactivateCredential(Long userId) {
+        log.warn("Desactivando credencial para userId: {}", userId);
+        credentialRepository.findByUserId(userId).ifPresent(credential -> {
+            credential.setIsActive(false);
+            credentialRepository.save(credential);
+        });
     }
 }

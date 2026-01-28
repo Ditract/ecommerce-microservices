@@ -11,4 +11,8 @@ public interface CredentialService {
     boolean validatePassword(String rawPassword, String email);
 
     void updatePassword(String email, String newPasswordHash);
+
+    void activateCredential(Long userId);
+
+    void deactivateCredential(Long userId);
 }

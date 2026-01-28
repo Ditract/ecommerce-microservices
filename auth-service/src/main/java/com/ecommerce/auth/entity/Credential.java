@@ -38,7 +38,7 @@ public class Credential {
 
     @Column(name = "is_active", nullable = false)
     @Builder.Default
-    private Boolean isActive = true;
+    private Boolean isActive = false;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

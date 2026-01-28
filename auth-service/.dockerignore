@@ -1,0 +1,34 @@
+# .dockerignore
+
+# Git
+.git
+.gitignore
+.gitkeep
+
+# Maven
+target/
+!target/*.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Docs
+README.md
+HELP.md
+*.md
+
+# Env files
+.env
+.env.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

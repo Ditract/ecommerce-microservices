@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.10</version>
+        <version>3.5.10</version>
         <relativePath/>
     </parent>
 
@@ -20,7 +20,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <spring-cloud.version>2025.0.1</spring-cloud.version>
         <jjwt.version>0.12.5</jjwt.version>
     </properties>
 
@@ -69,13 +69,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Eureka Client -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-
-        <!-- OpenFeign (para comunicarse con User Service) -->
+        <!-- OpenFeign -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
@@ -137,6 +131,9 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <layers>
+                        <enabled>true</enabled>
+                    </layers>
                 </configuration>
             </plugin>
         </plugins>
